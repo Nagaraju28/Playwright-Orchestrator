@@ -57,11 +57,7 @@ def record_heartbeat(payload: AgentHeartbeat, db: Session = Depends(get_db)):
 @router.get("/", response_model=List[AgentResponse])
 def list_agents(db: Session = Depends(get_db)):
     """List all registered execution agents with live health status."""
-    agents = db.query(Agent).order_by(Agent.registered_at.desc()).all()
-    # Populate computed health property
-    for a in agents:
-        a.is_healthy = a.is_healthy(timeout_seconds=30)
-    return agents
+    return db.query(Agent).order_by(Agent.registered_at.desc()).all()
 
 @router.post("/watchdog/check")
 def trigger_watchdog_check(timeout_seconds: int = 30, db: Session = Depends(get_db)):

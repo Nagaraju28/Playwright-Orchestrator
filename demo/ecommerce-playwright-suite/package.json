@@ -1,0 +1,12 @@
+{
+  "name": "ecommerce-playwright-suite",
+  "version": "1.0.0",
+  "description": "Enterprise E-Commerce QA Automation Suite for SauceDemo",
+  "main": "playwright.config.js",
+  "scripts": {
+    "test": "playwright test"
+  },
+  "devDependencies": {
+    "@playwright/test": "^1.42.1"
+  }
+}

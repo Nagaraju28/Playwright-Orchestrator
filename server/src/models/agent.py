@@ -28,12 +28,13 @@ class Agent(Base):
     last_heartbeat = Column(DateTime, default=datetime.utcnow, nullable=False)
     registered_at = Column(DateTime, default=datetime.utcnow, nullable=False)
 
-    def is_healthy(self, timeout_seconds: int = 30) -> bool:
+    @property
+    def is_healthy(self) -> bool:
         """Evaluate if the agent is considered alive based on heartbeat interval."""
         if not self.last_heartbeat:
             return False
         delta = (datetime.utcnow() - self.last_heartbeat).total_seconds()
-        return delta <= timeout_seconds
+        return delta <= 30
 
     def __repr__(self) -> str:
         return f"<Agent {self.name} [{self.status}] ({self.id})>"

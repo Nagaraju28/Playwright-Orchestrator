@@ -200,11 +200,33 @@
 
           <!-- Xterm Container -->
           <div class="flex-1 bg-slate-950 p-2 overflow-hidden" id="terminal-container"></div>
+
+          <!-- Test Cases Breakdown & Failure Inspector (FR-4) -->
+          <div id="job-results-panel" class="hidden px-4 py-3 bg-slate-900/95 border-t border-slate-800 space-y-2">
+            <div class="flex items-center justify-between text-xs">
+              <div class="font-bold text-white flex items-center space-x-3" id="job-metrics-summary"></div>
+              <button onclick="toggleTestCasesList()" class="text-blue-400 hover:text-blue-300 text-[11px] font-semibold">Test Details & Screenshots ▼</button>
+            </div>
+            <div id="job-test-cases-list" class="space-y-1.5 max-h-48 overflow-y-auto pt-2 hidden border-t border-slate-800/80"></div>
+          </div>
         </div>
       </div>
     </section>
 
   </main>
+
+  <!-- MODAL: SCREENSHOT VIEWER -->
+  <div id="modal-screenshot" class="fixed inset-0 bg-black/80 backdrop-blur-sm hidden z-50 flex items-center justify-center p-4" onclick="closeScreenshotModal()">
+    <div class="bg-slate-900 border border-slate-800 rounded-2xl max-w-4xl w-full p-4 space-y-3 shadow-2xl" onclick="event.stopPropagation()">
+      <div class="flex items-center justify-between border-b border-slate-800 pb-2">
+        <h3 class="text-xs font-bold text-white" id="screenshot-modal-title">Failure Screenshot</h3>
+        <button onclick="closeScreenshotModal()" class="text-slate-400 hover:text-white">&times;</button>
+      </div>
+      <div class="flex justify-center bg-black/50 p-2 rounded-xl overflow-auto max-h-[70vh]">
+        <img id="screenshot-modal-img" src="" alt="Artifact Screenshot" class="max-w-full h-auto rounded border border-slate-800 shadow-lg" />
+      </div>
+    </div>
+  </div>
 
   <!-- MODAL: TRIGGER TEST RUN -->
   <div id="modal-trigger" class="fixed inset-0 bg-black/70 backdrop-blur-sm hidden z-50 flex items-center justify-center p-4">
@@ -479,6 +501,10 @@
           if (msg.data) {
             term.write(msg.data);
           }
+          if (msg.type === 'JOB_EXECUTION_FINISHED') {
+            fetchJobResults(jobId);
+            refreshData();
+          }
         } catch (e) {
           term.write(event.data);
         }
@@ -487,6 +513,74 @@
       activeLogSocket.onerror = () => {
         term.writeln(`\r\n\x1b[1;31m[WebSocket Error] Disconnected from stream.\x1b[0m\r\n`);
       };
+
+      // Also check if results are already computed
+      fetchJobResults(jobId);
+    }
+
+    async function fetchJobResults(jobId) {
+      try {
+        const res = await fetch(`/api/v1/jobs/${jobId}/results`);
+        if (!res.ok) return;
+        const data = await res.json();
+        const summary = data.summary;
+        const testCases = data.test_cases || [];
+
+        if (summary.total === 0 && testCases.length === 0) {
+          document.getElementById('job-results-panel').classList.add('hidden');
+          return;
+        }
+
+        document.getElementById('job-results-panel').classList.remove('hidden');
+        document.getElementById('job-metrics-summary').innerHTML = `
+          <span>Execution Summary:</span>
+          <span class="px-2 py-0.5 rounded text-[11px] bg-emerald-500/10 text-emerald-400 border border-emerald-500/20">${summary.passed} Passed</span>
+          <span class="px-2 py-0.5 rounded text-[11px] bg-rose-500/10 text-rose-400 border border-rose-500/20">${summary.failed} Failed</span>
+          <span class="px-2 py-0.5 rounded text-[11px] bg-amber-500/10 text-amber-400 border border-amber-500/20">${summary.skipped} Skipped</span>
+          <span class="text-slate-400 font-mono text-[11px]">${(summary.duration_ms / 1000).toFixed(2)}s</span>
+        `;
+
+        const listContainer = document.getElementById('job-test-cases-list');
+        listContainer.innerHTML = testCases.map(tc => {
+          const isPass = tc.status === 'PASSED';
+          const isFail = tc.status === 'FAILED' || tc.status === 'TIMED_OUT';
+          const badgeClass = isPass ? 'bg-emerald-500/10 text-emerald-400 border-emerald-500/20' : (isFail ? 'bg-rose-500/10 text-rose-400 border-rose-500/20' : 'bg-slate-800 text-slate-400 border-slate-700');
+
+          return `
+            <div class="p-2 rounded bg-slate-950/80 border border-slate-800/80 text-[11px] space-y-1">
+              <div class="flex items-center justify-between">
+                <span class="font-medium text-slate-200">${tc.title}</span>
+                <span class="px-1.5 py-0.5 rounded text-[10px] border ${badgeClass}">${tc.status} (${(tc.duration_ms / 1000).toFixed(2)}s)</span>
+              </div>
+              ${tc.error_message ? `<div class="text-rose-400 font-mono text-[10px] bg-rose-950/20 p-1.5 rounded border border-rose-900/30 overflow-x-auto">${tc.error_message}</div>` : ''}
+              ${tc.screenshot_url ? `
+                <div class="pt-1">
+                  <button onclick="openScreenshotModal('${tc.screenshot_url}', '${tc.title}')" class="px-2 py-0.5 rounded text-[10px] bg-blue-600/20 hover:bg-blue-600/40 text-blue-300 font-semibold border border-blue-500/30">
+                    📷 View Failure Screenshot
+                  </button>
+                </div>
+              ` : ''}
+            </div>
+          `;
+        }).join('');
+      } catch (e) {
+        console.error('Failed fetching test results:', e);
+      }
+    }
+
+    function toggleTestCasesList() {
+      const el = document.getElementById('job-test-cases-list');
+      el.classList.toggle('hidden');
+    }
+
+    function openScreenshotModal(url, title) {
+      document.getElementById('screenshot-modal-title').innerText = title;
+      document.getElementById('screenshot-modal-img').src = url;
+      document.getElementById('modal-screenshot').classList.remove('hidden');
+    }
+
+    function closeScreenshotModal() {
+      document.getElementById('modal-screenshot').classList.add('hidden');
     }
 
     function clearTerminal() {

@@ -23,11 +23,49 @@ class WorkspaceManager {
     if (project.git_url) {
       await this.cloneGitProject(project, jobDir, jobId, wsClient);
     } else if (project.zip_storage_path) {
-      wsClient.sendLog(jobId, `[Workspace] Ingesting zip bundle from ${project.zip_storage_path}...`);
-      // Extracted files or bundle logic
+      wsClient.sendLog(jobId, `[Workspace] Ingesting bundle from ${project.zip_storage_path}...`);
+      await this.extractBundle(project.zip_storage_path, jobDir, jobId, wsClient);
     }
 
     return jobDir;
+  }
+
+  /**
+   * Extracts a zip bundle or copies local source files into the job workspace.
+   */
+  static extractBundle(bundlePath, targetDir, jobId, wsClient) {
+    return new Promise((resolve, reject) => {
+      const suiteDir = bundlePath.replace(/\.zip$/, '');
+      if (fs.existsSync(suiteDir) && fs.statSync(suiteDir).isDirectory()) {
+        // Direct folder copy
+        try {
+          fs.cpSync(suiteDir, targetDir, { recursive: true });
+          wsClient.sendLog(jobId, `[Workspace] Copied files directly from ${suiteDir} into workspace.`);
+          return resolve();
+        } catch (err) {
+          // fallback to tar
+        }
+      }
+
+      // Extract zip using built-in tar or PowerShell
+      const isWin = process.platform === 'win32';
+      const cmd = isWin ? 'powershell' : 'unzip';
+      const args = isWin
+        ? ['-NoProfile', '-Command', `Expand-Archive -Path '${bundlePath}' -DestinationPath '${targetDir}' -Force`]
+        : ['-o', bundlePath, '-d', targetDir];
+
+      const child = spawn(cmd, args);
+      child.on('close', (code) => {
+        if (code === 0) {
+          wsClient.sendLog(jobId, `[Workspace] Extracted zip bundle successfully.`);
+          resolve();
+        } else {
+          const err = new Error(`Extraction failed with exit code ${code}`);
+          wsClient.sendLog(jobId, `[Workspace] ${err.message}`, 'stderr');
+          reject(err);
+        }
+      });
+    });
   }
 
   /**

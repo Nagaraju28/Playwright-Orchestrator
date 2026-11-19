@@ -6,7 +6,6 @@ from sqlalchemy.orm import Session
 from ..models.agent import Agent, AgentStatus
 from ..models.job import Job, JobStatus
 from ..models.project import Project
-from ..api.websocket import ws_broker
 
 class JobDispatcher:
     """Orchestrates job queues, agent worker registries, and task dispatching."""
@@ -15,7 +14,7 @@ class JobDispatcher:
     def get_available_agents(db: Session) -> List[Agent]:
         """Fetch online, healthy worker agents currently in IDLE status."""
         agents = db.query(Agent).filter(Agent.status == AgentStatus.IDLE).all()
-        return [a for a in agents if a.is_healthy(timeout_seconds=30)]
+        return [a for a in agents if a.is_healthy]
 
     @classmethod
     async def dispatch_next_job(cls, db: Session) -> Optional[Job]:
@@ -69,6 +68,7 @@ class JobDispatcher:
         }
 
         # Deliver dispatch command via active WebSocket connection
+        from ..api.websocket import ws_broker
         agent_ws = ws_broker.active_agent_connections.get(target_agent.id)
         if agent_ws:
             try:

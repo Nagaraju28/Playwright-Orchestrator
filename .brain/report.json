@@ -1,0 +1,64 @@
+{
+  "schema_version": "1.2",
+  "project": "Playwright-Orchestrator",
+  "last_push": "2026-11-19",
+  "push_count": 1,
+  "memories_stored": 2,
+  "memories_retrieved": 0,
+  "utilisation_rate": 0.0,
+  "quality_score": 1.0,
+  "memory_types": {
+    "business_rule": 0,
+    "decision": 0,
+    "constraint": 2,
+    "failure": 0,
+    "intent": 0,
+    "tradeoff": 0,
+    "debt": 0
+  },
+  "stage1_count": 2,
+  "stage2_count": 0,
+  "total_extracted": 2,
+  "stale_count": 0,
+  "provider": "none",
+  "risk": {
+    "critical": 0,
+    "high": 2,
+    "medium": 0
+  },
+  "debt": {
+    "design": 0,
+    "defect": 0,
+    "documentation": 0,
+    "requirement": 0,
+    "test": 0
+  },
+  "decision_debt": 0,
+  "incidents": 0,
+  "enforced": 2,
+  "documented": 0,
+  "subsystems": [
+    {
+      "name": "api",
+      "items": 1,
+      "critical": 0,
+      "incidents": 0
+    },
+    {
+      "name": "server",
+      "items": 1,
+      "critical": 0,
+      "incidents": 0
+    }
+  ],
+  "coverage": {
+    "measured": true,
+    "product_files": 37,
+    "uncovered_files": 21,
+    "uncovered_share": 59,
+    "blind_spots": 4,
+    "covered_subsystems": 2,
+    "total_subsystems": 7,
+    "rules_per_100_files": 5.4
+  }
+}

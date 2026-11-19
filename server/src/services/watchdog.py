@@ -5,7 +5,6 @@ from sqlalchemy.orm import Session
 from ..database import SessionLocal
 from ..models.agent import Agent, AgentStatus
 from ..models.job import Job, JobStatus
-from ..api.websocket import ws_broker
 
 class HeartbeatWatchdog:
     """Monitors worker VM heartbeats and enforces Invariant NFR-4 (Orphaned Job Recovery)."""
@@ -13,15 +12,15 @@ class HeartbeatWatchdog:
     @classmethod
     def check_agent_heartbeats(cls, db: Session, timeout_seconds: int = 30) -> List[dict]:
         """Scan agents for heartbeat timeouts and gracefully mark mid-execution jobs as ORPHANED."""
-        cutoff = datetime.utcnow() - timedelta(seconds=timeout_seconds)
         orphaned_events = []
 
         # Find agents whose heartbeats have expired and are not already marked OFFLINE
-        stale_agents = (
-            db.query(Agent)
-            .filter(Agent.last_heartbeat < cutoff, Agent.status != AgentStatus.OFFLINE)
-            .all()
-        )
+        stale_agents = []
+        now = datetime.utcnow()
+        for agent in db.query(Agent).all():
+            if agent.status != AgentStatus.OFFLINE and agent.last_heartbeat:
+                if (now - agent.last_heartbeat).total_seconds() > timeout_seconds:
+                    stale_agents.append(agent)
 
         for agent in stale_agents:
             old_status = agent.status
@@ -54,6 +53,7 @@ class HeartbeatWatchdog:
     @classmethod
     async def run_periodic_watchdog(cls, interval_seconds: int = 10, timeout_seconds: int = 30):
         """Asynchronous background loop running throughout the application lifespan."""
+        from ..api.websocket import ws_broker
         while True:
             try:
                 db = SessionLocal()

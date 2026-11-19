@@ -1,4 +1,5 @@
 import io
+import uuid
 import pytest
 from datetime import datetime, timedelta
 from fastapi.testclient import TestClient
@@ -20,9 +21,10 @@ client = TestClient(app)
 
 def test_us1_project_management_git_and_zip():
     """US-1 Acceptance Criteria: Projects support Git and Zip ingestion."""
+    uid = uuid.uuid4().hex[:6]
     # 1. Create Git Project
     git_payload = {
-        "name": "E2E Checkout Suite",
+        "name": f"E2E Checkout Suite {uid}",
         "description": "Regression test suite",
         "ingestion_type": "GIT",
         "git_url": "https://github.com/corp/checkout-tests.git",
@@ -32,7 +34,7 @@ def test_us1_project_management_git_and_zip():
     res = client.post("/api/v1/projects/", json=git_payload)
     assert res.status_code == 201
     git_proj = res.json()
-    assert git_proj["name"] == "E2E Checkout Suite"
+    assert git_proj["name"] == git_payload["name"]
     assert git_proj["git_branch"] == "release/v2"
 
     # 2. Upload Zip bundle to project
@@ -52,9 +54,10 @@ def test_us1_project_management_git_and_zip():
 
 def test_us2_job_execution_and_dispatch():
     """US-2 Acceptance Criteria: Control Plane queues and dispatches execution requests."""
+    uid = uuid.uuid4().hex[:6]
     # 1. Register agent
     agent_res = client.post("/api/v1/agents/register", json={
-        "name": "e2e-worker-node",
+        "name": f"e2e-worker-{uid}",
         "hostname": "win-e2e-vm",
         "platform": "win32",
     })
@@ -62,7 +65,7 @@ def test_us2_job_execution_and_dispatch():
     agent_id = agent_res.json()["id"]
 
     # 2. Create project
-    proj_res = client.post("/api/v1/projects/", json={"name": "Dispatch Test Project"})
+    proj_res = client.post("/api/v1/projects/", json={"name": f"Dispatch Test Project {uid}"})
     proj_id = proj_res.json()["id"]
 
     # 3. Trigger Job Run
@@ -96,8 +99,9 @@ def test_us4_metrics_artifacts_and_watchdog_orphan_recovery():
     """US-4 Acceptance Criteria: Playwright JSON reports, artifacts, and NFR-4 orphaned VM recovery."""
     db = SessionLocal()
     try:
+        uid = uuid.uuid4().hex[:6]
         # Create project and job
-        project = Project(name="Metrics Project")
+        project = Project(name=f"Metrics Project {uid}")
         db.add(project)
         db.commit()
 
@@ -154,29 +158,32 @@ def test_us4_metrics_artifacts_and_watchdog_orphan_recovery():
         assert summary["failed"] == 1
 
         # 3. Test Invariant NFR-4: Heartbeat Watchdog Orphan Recovery
+        watchdog_job = Job(project_id=project.id, status=JobStatus.RUNNING)
+        db.add(watchdog_job)
+        db.commit()
+
         stale_agent = Agent(
-            name="crashing-vm-node",
+            name=f"crashing-vm-{uid}",
             hostname="worker-crash-01",
-            auth_token="agt_crashing_token_999",
+            auth_token=f"agt_crashing_token_{uid}",
             status=AgentStatus.BUSY,
-            current_job_id=job.id,
+            current_job_id=watchdog_job.id,
             # Heartbeat is 60 seconds old
             last_heartbeat=datetime.utcnow() - timedelta(seconds=60),
         )
         db.add(stale_agent)
-        job.status = JobStatus.RUNNING
-        job.agent_id = stale_agent.id
+        watchdog_job.agent_id = stale_agent.id
         db.commit()
 
         # Run Watchdog Check
         events = HeartbeatWatchdog.check_agent_heartbeats(db, timeout_seconds=30)
         assert len(events) >= 1
-        assert any(ev["job_id"] == job.id for ev in events)
+        assert any(ev["job_id"] == watchdog_job.id for ev in events)
 
         # Confirm job transitioned to ORPHANED per NFR-4
-        db.refresh(job)
-        assert job.status == JobStatus.ORPHANED
-        assert "disconnected mid-execution" in job.error_summary
-        assert "Invariant NFR-4" in job.error_summary
+        db.refresh(watchdog_job)
+        assert watchdog_job.status == JobStatus.ORPHANED
+        assert "disconnected mid-execution" in watchdog_job.error_summary
+        assert "Invariant NFR-4" in watchdog_job.error_summary
     finally:
         db.close()

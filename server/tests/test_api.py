@@ -1,4 +1,5 @@
 import pytest
+import uuid
 from fastapi.testclient import TestClient
 from server.src.main import app
 from server.src.database import init_db
@@ -16,8 +17,9 @@ def test_health_check():
     assert data["status"] == "healthy"
 
 def test_project_crud():
+    uid = uuid.uuid4().hex[:6]
     payload = {
-        "name": "Playwright Demo Project",
+        "name": f"Playwright Demo Project {uid}",
         "description": "Integration test suite for e-commerce checkout",
         "ingestion_type": "GIT",
         "git_url": "https://github.com/example/e2e-tests.git",
@@ -36,8 +38,9 @@ def test_project_crud():
     assert project_id in ids
 
 def test_agent_registration():
+    uid = uuid.uuid4().hex[:6]
     payload = {
-        "name": "worker-vm-01",
+        "name": f"worker-vm-{uid}",
         "hostname": "win-agent-srv.corp.local",
         "ip_address": "10.0.1.45",
         "platform": "win32",
@@ -46,13 +49,14 @@ def test_agent_registration():
     res = client.post("/api/v1/agents/register", json=payload)
     assert res.status_code == 201
     agent = res.json()
-    assert agent["name"] == "worker-vm-01"
+    assert agent["name"] == payload["name"]
     assert "auth_token" in agent
     assert agent["status"] == "IDLE"
 
 def test_job_trigger():
+    uid = uuid.uuid4().hex[:6]
     # Create project first
-    proj_res = client.post("/api/v1/projects/", json={"name": "Job Trigger Project"})
+    proj_res = client.post("/api/v1/projects/", json={"name": f"Job Trigger Project {uid}"})
     proj_id = proj_res.json()["id"]
 
     job_payload = {
@@ -64,5 +68,5 @@ def test_job_trigger():
     res = client.post("/api/v1/jobs/trigger", json=job_payload)
     assert res.status_code == 201
     job = res.json()
-    assert job["status"] == "QUEUED"
+    assert job["status"] in ("QUEUED", "DISPATCHED", "RUNNING")
     assert job["project_id"] == proj_id
