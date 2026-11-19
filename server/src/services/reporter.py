@@ -65,15 +65,16 @@ class PlaywrightReportParser:
                     video_url = None
                     extra_attachments = []
 
+                    from pathlib import Path
                     for att in last_result.get("attachments", []):
                         name = att.get("name", "").lower()
                         path = att.get("path")
                         if "screenshot" in name or (path and path.endswith(".png")):
-                            screenshot_url = path
+                            screenshot_url = f"/api/v1/artifacts/{job.id}/{Path(path).name}" if path else None
                         elif "trace" in name or (path and path.endswith(".zip")):
-                            trace_url = path
+                            trace_url = f"/api/v1/artifacts/{job.id}/{Path(path).name}" if path else None
                         elif "video" in name or (path and path.endswith(".webm")):
-                            video_url = path
+                            video_url = f"/api/v1/artifacts/{job.id}/{Path(path).name}" if path else None
                         else:
                             extra_attachments.append(att)
 

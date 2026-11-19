@@ -6,9 +6,25 @@ from fastapi.middleware.cors import CORSMiddleware
 from fastapi.staticfiles import StaticFiles
 from fastapi.responses import FileResponse
 from .config import settings, BASE_DIR
-from .database import init_db
+from .database import init_db, SessionLocal
 from .api import api_router
 from .services.watchdog import HeartbeatWatchdog
+from .services.dispatcher import JobDispatcher
+
+async def run_periodic_dispatcher(interval_seconds: int = 5):
+    """Periodically drain queued jobs when agents are idle."""
+    while True:
+        try:
+            await asyncio.sleep(interval_seconds)
+            db = SessionLocal()
+            try:
+                await JobDispatcher.dispatch_next_job(db)
+            finally:
+                db.close()
+        except asyncio.CancelledError:
+            break
+        except Exception:
+            pass
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
@@ -17,11 +33,17 @@ async def lifespan(app: FastAPI):
     watchdog_task = asyncio.create_task(
         HeartbeatWatchdog.run_periodic_watchdog(interval_seconds=10, timeout_seconds=settings.WS_HEARTBEAT_TIMEOUT_SEC)
     )
+    dispatcher_task = asyncio.create_task(run_periodic_dispatcher(interval_seconds=3))
     yield
-    # Shutdown: Cleanly cancel background watchdog
+    # Shutdown: Cleanly cancel background tasks
     watchdog_task.cancel()
+    dispatcher_task.cancel()
     try:
         await watchdog_task
+    except asyncio.CancelledError:
+        pass
+    try:
+        await dispatcher_task
     except asyncio.CancelledError:
         pass
 

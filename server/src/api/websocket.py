@@ -74,6 +74,17 @@ async def agent_telemetry_ws(websocket: WebSocket, agent_id: str):
     """WebSocket endpoint where Agent Daemon connects to stream live logs & heartbeat."""
     await websocket.accept()
     ws_broker.active_agent_connections[agent_id] = websocket
+
+    # Auto-dispatch any queued jobs when a worker connects
+    db = SessionLocal()
+    try:
+        from ..services.dispatcher import JobDispatcher
+        await JobDispatcher.dispatch_next_job(db)
+    except Exception:
+        pass
+    finally:
+        db.close()
+
     try:
         while True:
             data = await websocket.receive_text()
@@ -120,6 +131,13 @@ async def handle_job_finished(payload: dict):
                     agent.status = AgentStatus.IDLE
                     agent.current_job_id = None
             db.commit()
+
+            # Automatically dispatch next queued job if available
+            try:
+                from ..services.dispatcher import JobDispatcher
+                await JobDispatcher.dispatch_next_job(db)
+            except Exception:
+                pass
     finally:
         db.close()
 

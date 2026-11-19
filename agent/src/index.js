@@ -142,6 +142,13 @@ class AgentDaemon {
         }));
       } catch (err) {
         this.wsClient.sendLog(jobId, `\r\n\x1b[1;31m[Agent Error] Job execution failed: ${err.message}\x1b[0m\r\n`, 'stderr');
+        this.wsClient.sendLog(jobId, JSON.stringify({
+          type: 'JOB_EXECUTION_FINISHED',
+          job_id: jobId,
+          exit_code: 1,
+          duration_ms: 0,
+          error: err.message,
+        }));
       } finally {
         this.status = 'IDLE';
         this.currentJobId = null;
