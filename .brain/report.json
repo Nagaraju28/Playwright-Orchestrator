@@ -2,11 +2,11 @@
   "schema_version": "1.2",
   "project": "Playwright-Orchestrator",
   "last_push": "2026-11-19",
-  "push_count": 1,
+  "push_count": 2,
   "memories_stored": 2,
   "memories_retrieved": 0,
   "utilisation_rate": 0.0,
-  "quality_score": 1.0,
+  "quality_score": null,
   "memory_types": {
     "business_rule": 0,
     "decision": 0,
@@ -53,12 +53,12 @@
   ],
   "coverage": {
     "measured": true,
-    "product_files": 37,
-    "uncovered_files": 21,
-    "uncovered_share": 59,
+    "product_files": 38,
+    "uncovered_files": 22,
+    "uncovered_share": 61,
     "blind_spots": 4,
     "covered_subsystems": 2,
     "total_subsystems": 7,
-    "rules_per_100_files": 5.4
+    "rules_per_100_files": 5.3
   }
 }

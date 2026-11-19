@@ -70,11 +70,11 @@ UI_DIR = Path(BASE_DIR).parent / "ui"
 
 @app.get("/", tags=["Dashboard"])
 def get_dashboard():
-    """Serve the UiPath-style interactive dashboard."""
+    """Serve the enterprise-grade interactive dashboard."""
     index_file = UI_DIR / "index.html"
     if index_file.exists():
         return FileResponse(index_file)
-    return {"message": "UiPath-style dashboard UI directory initialized"}
+    return {"message": "Enterprise dashboard UI directory initialized"}
 
 if UI_DIR.exists():
     app.mount("/static", StaticFiles(directory=str(UI_DIR)), name="static")

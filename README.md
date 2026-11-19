@@ -1,4 +1,4 @@
-# Enterprise Playwright Test Orchestrator (UiPath Test Suite Style)
+# Enterprise Playwright Test Orchestrator
 
 A distributed test orchestration platform for enterprise Playwright automation suites, built using **Project Brain Spec-Driven Development (SDD)**.
 
@@ -8,7 +8,7 @@ A distributed test orchestration platform for enterprise Playwright automation s
 
 ```
                       ┌────────────────────────────────────────┐
-                      │    UiPath-Style Web Dashboard (UI)     │
+                      │    Enterprise Web Dashboard (UI)       │
                       │  (Projects, Fleet, Real-Time Xterm.js) │
                       └───────────────────▲────────────────────┘
                                           │ HTTP / WebSockets

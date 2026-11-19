@@ -13,8 +13,8 @@ client = TestClient(app)
 def test_dashboard_route_serves_html():
     res = client.get("/")
     assert res.status_code == 200
-    assert "Playwright Test Orchestrator" in res.text
-    assert "UiPath Test Suite Style" in res.text
+    assert "Playwright Orchestrator" in res.text
+    assert "Enterprise Edition" in res.text
     assert "Xterm" in res.text or "xterm" in res.text
 
 def test_websocket_log_broker_buffer():

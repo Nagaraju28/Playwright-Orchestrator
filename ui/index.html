@@ -1,9 +1,9 @@
 <!DOCTYPE html>
-<html lang="en" class="h-full bg-slate-950 text-slate-100">
+<html lang="en" class="h-full bg-slate-950 text-slate-100 antialiased">
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Playwright Test Orchestrator | Enterprise Test Suite</title>
+  <title>Playwright Orchestrator | Enterprise Platform</title>
   <!-- Tailwind CSS CDN -->
   <script src="https://cdn.tailwindcss.com"></script>
   <!-- Xterm.js CDN -->
@@ -16,106 +16,158 @@
       theme: {
         extend: {
           colors: {
-            brand: { 50: '#eff6ff', 500: '#3b82f6', 600: '#2563eb', 700: '#1d4ed8' },
-            uipath: { orange: '#FA4616', dark: '#111827' }
+            brand: {
+              50: '#eef2ff',
+              100: '#e0e7ff',
+              500: '#6366f1',
+              600: '#4f46e5',
+              700: '#4338ca',
+            },
+            surface: {
+              base: '#080C14',
+              card: '#0D131F',
+              hover: '#131B2C',
+              border: '#1E293B',
+              borderLight: '#334155',
+            }
+          },
+          fontFamily: {
+            sans: ['Inter', 'system-ui', '-apple-system', 'Segoe UI', 'Roboto', 'sans-serif'],
+            mono: ['JetBrains Mono', 'Fira Code', 'Menlo', 'monospace'],
           }
         }
       }
     }
   </script>
   <style>
-    .xterm { height: 100%; padding: 8px; }
-    .xterm-viewport::-webkit-scrollbar { width: 8px; }
-    .xterm-viewport::-webkit-scrollbar-track { background: #0f172a; }
-    .xterm-viewport::-webkit-scrollbar-thumb { background: #334155; border-radius: 4px; }
+    .xterm { height: 100%; padding: 10px; }
+    .xterm-viewport::-webkit-scrollbar { width: 6px; }
+    .xterm-viewport::-webkit-scrollbar-track { background: #080C14; }
+    .xterm-viewport::-webkit-scrollbar-thumb { background: #1E293B; border-radius: 3px; }
+    .glass-panel { background: rgba(13, 19, 31, 0.75); backdrop-filter: blur(12px); border: 1px solid rgba(30, 41, 59, 0.8); }
+    .custom-scrollbar::-webkit-scrollbar { width: 5px; height: 5px; }
+    .custom-scrollbar::-webkit-scrollbar-track { background: transparent; }
+    .custom-scrollbar::-webkit-scrollbar-thumb { background: #1E293B; border-radius: 4px; }
   </style>
 </head>
-<body class="h-full flex flex-col font-sans selection:bg-blue-600 selection:text-white">
+<body class="h-full flex flex-col bg-surface-base font-sans selection:bg-indigo-600 selection:text-white">
 
-  <!-- Top Navigation Header -->
-  <header class="bg-slate-900 border-b border-slate-800 px-6 py-3.5 flex items-center justify-between sticky top-0 z-40 shadow-sm">
-    <div class="flex items-center space-x-4">
-      <div class="h-9 w-9 rounded-lg bg-gradient-to-tr from-orange-600 to-amber-500 flex items-center justify-center font-bold text-lg text-white shadow-md shadow-orange-900/30">
-        🎭
+  <!-- Top Enterprise Navigation Header -->
+  <header class="bg-surface-card/95 border-b border-surface-border px-6 py-3 flex items-center justify-between sticky top-0 z-40 backdrop-blur-md">
+    <div class="flex items-center space-x-5">
+      <!-- Modern Geometric Brand Mark -->
+      <div class="h-9 w-9 rounded-lg bg-gradient-to-tr from-indigo-600 via-blue-600 to-cyan-400 p-[1px] shadow-sm shadow-indigo-500/20">
+        <div class="h-full w-full bg-surface-card rounded-[7px] flex items-center justify-center">
+          <svg class="w-5 h-5 text-indigo-400" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <polygon points="12 2 2 7 12 12 22 7 12 2"></polygon>
+            <polyline points="2 17 12 22 22 17"></polyline>
+            <polyline points="2 12 12 17 22 12"></polyline>
+          </svg>
+        </div>
       </div>
       <div>
-        <div class="flex items-center space-x-2">
-          <h1 class="text-base font-bold tracking-tight text-white">Playwright Orchestrator</h1>
-          <span class="px-2 py-0.5 rounded text-xs font-semibold bg-orange-500/10 text-orange-400 border border-orange-500/20">UiPath Test Suite Style</span>
+        <div class="flex items-center space-x-2.5">
+          <h1 class="text-sm font-semibold tracking-tight text-white font-sans">Playwright Orchestrator</h1>
+          <span class="px-2 py-0.5 rounded text-[10px] font-semibold bg-indigo-500/10 text-indigo-400 border border-indigo-500/20 uppercase tracking-wider">Enterprise Edition</span>
         </div>
-        <p class="text-xs text-slate-400">Distributed VM Execution Plane & Live Telemetry</p>
+        <p class="text-[11px] text-slate-400">Continuous Test Automation & Real-Time Observability Platform</p>
       </div>
     </div>
 
-    <!-- Active Navigation Tabs -->
-    <nav class="flex items-center space-x-1 bg-slate-950/60 p-1 rounded-xl border border-slate-800/80">
-      <button onclick="switchTab('overview')" id="tab-overview" class="tab-btn px-4 py-1.5 text-xs font-medium rounded-lg text-white bg-slate-800 transition shadow-sm">Overview</button>
-      <button onclick="switchTab('projects')" id="tab-projects" class="tab-btn px-4 py-1.5 text-xs font-medium rounded-lg text-slate-400 hover:text-slate-200 transition">Projects</button>
-      <button onclick="switchTab('agents')" id="tab-agents" class="tab-btn px-4 py-1.5 text-xs font-medium rounded-lg text-slate-400 hover:text-slate-200 transition">Agent Fleet</button>
-      <button onclick="switchTab('jobs')" id="tab-jobs" class="tab-btn px-4 py-1.5 text-xs font-medium rounded-lg text-slate-400 hover:text-slate-200 transition">Runs & Live Console</button>
+    <!-- Center Navigation Tabs -->
+    <nav class="flex items-center space-x-1 bg-surface-base/80 p-1 rounded-lg border border-surface-border">
+      <button onclick="switchTab('overview')" id="tab-overview" class="tab-btn px-4 py-1.5 text-xs font-medium rounded-md text-white bg-indigo-600 shadow-sm transition">Overview</button>
+      <button onclick="switchTab('projects')" id="tab-projects" class="tab-btn px-4 py-1.5 text-xs font-medium rounded-md text-slate-400 hover:text-slate-200 transition">Projects</button>
+      <button onclick="switchTab('agents')" id="tab-agents" class="tab-btn px-4 py-1.5 text-xs font-medium rounded-md text-slate-400 hover:text-slate-200 transition">Agent Fleet</button>
+      <button onclick="switchTab('jobs')" id="tab-jobs" class="tab-btn px-4 py-1.5 text-xs font-medium rounded-md text-slate-400 hover:text-slate-200 transition">Execution Runs</button>
     </nav>
 
-    <!-- System Status & Quick Actions -->
+    <!-- Cluster Status & Global Actions -->
     <div class="flex items-center space-x-3">
-      <div class="flex items-center space-x-2 bg-slate-950 border border-slate-800 px-3 py-1.5 rounded-lg text-xs">
-        <span class="h-2 w-2 rounded-full bg-emerald-500 animate-pulse"></span>
-        <span class="text-slate-300 font-mono" id="system-health">Control Plane Online</span>
+      <div class="flex items-center space-x-2 bg-surface-base border border-surface-border px-3 py-1.5 rounded-lg text-xs">
+        <span class="h-2 w-2 rounded-full bg-emerald-400 animate-pulse"></span>
+        <span class="text-slate-300 font-medium" id="system-health">Cluster: Healthy</span>
       </div>
-      <button onclick="openTriggerModal()" class="flex items-center space-x-1.5 px-3 py-1.5 bg-orange-600 hover:bg-orange-500 text-white rounded-lg text-xs font-semibold shadow-md shadow-orange-950 transition">
-        <span>▶ Trigger Test Run</span>
+      <button onclick="openTriggerModal()" class="flex items-center space-x-2 px-3.5 py-1.5 bg-indigo-600 hover:bg-indigo-500 text-white rounded-lg text-xs font-semibold shadow-sm shadow-indigo-600/30 transition">
+        <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14.752 11.168l-3.197-2.132A1 1 0 0010 9.87v4.263a1 1 0 001.555.832l3.197-2.132a1 1 0 000-1.664z"></path><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+        <span>Trigger Run</span>
       </button>
     </div>
   </header>
 
   <!-- Main Content View Container -->
-  <main class="flex-1 overflow-y-auto p-6 max-w-7xl w-full mx-auto space-y-6">
+  <main class="flex-1 overflow-y-auto p-6 max-w-7xl w-full mx-auto space-y-6 custom-scrollbar">
 
     <!-- TAB 1: OVERVIEW -->
     <section id="view-overview" class="space-y-6">
       <!-- Metric Cards Grid -->
       <div class="grid grid-cols-1 md:grid-cols-4 gap-4">
-        <div class="bg-slate-900 border border-slate-800 rounded-xl p-4 shadow-sm">
-          <div class="text-xs font-medium text-slate-400 uppercase tracking-wider">Total Projects</div>
-          <div class="text-2xl font-bold text-white mt-1" id="metric-projects">-</div>
-          <div class="text-xs text-slate-500 mt-2">Connected repositories & suites</div>
+        <div class="glass-panel rounded-xl p-4.5 shadow-sm">
+          <div class="flex items-center justify-between">
+            <span class="text-[11px] font-semibold text-slate-400 uppercase tracking-wider">Active Projects</span>
+            <svg class="w-4 h-4 text-indigo-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 7v10a2 2 0 002 2h14a2 2 0 002-2V9a2 2 0 00-2-2h-6l-2-2H5a2 2 0 00-2 2z"></path></svg>
+          </div>
+          <div class="text-2xl font-bold text-white mt-1.5 font-mono" id="metric-projects">-</div>
+          <div class="text-[11px] text-slate-400 mt-2">Connected Git repos & test suites</div>
         </div>
-        <div class="bg-slate-900 border border-slate-800 rounded-xl p-4 shadow-sm">
-          <div class="text-xs font-medium text-slate-400 uppercase tracking-wider">Online Agents</div>
-          <div class="text-2xl font-bold text-emerald-400 mt-1" id="metric-agents">-</div>
-          <div class="text-xs text-slate-500 mt-2">Target execution VM daemons</div>
+
+        <div class="glass-panel rounded-xl p-4.5 shadow-sm">
+          <div class="flex items-center justify-between">
+            <span class="text-[11px] font-semibold text-slate-400 uppercase tracking-wider">Fleet Workers</span>
+            <svg class="w-4 h-4 text-emerald-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 12h14M5 12a2 2 0 01-2-2V6a2 2 0 012-2h14a2 2 0 012 2v4a2 2 0 01-2 2M5 12a2 2 0 00-2 2v4a2 2 0 002 2h14a2 2 0 002-2v-4a2 2 0 00-2-2m-2-4h.01M17 16h.01"></path></svg>
+          </div>
+          <div class="text-2xl font-bold text-emerald-400 mt-1.5 font-mono" id="metric-agents">-</div>
+          <div class="text-[11px] text-slate-400 mt-2">Active VM agent daemon nodes</div>
         </div>
-        <div class="bg-slate-900 border border-slate-800 rounded-xl p-4 shadow-sm">
-          <div class="text-xs font-medium text-slate-400 uppercase tracking-wider">Total Executions</div>
-          <div class="text-2xl font-bold text-blue-400 mt-1" id="metric-runs">-</div>
-          <div class="text-xs text-slate-500 mt-2">Completed and queued jobs</div>
+
+        <div class="glass-panel rounded-xl p-4.5 shadow-sm">
+          <div class="flex items-center justify-between">
+            <span class="text-[11px] font-semibold text-slate-400 uppercase tracking-wider">Total Test Runs</span>
+            <svg class="w-4 h-4 text-blue-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"></path></svg>
+          </div>
+          <div class="text-2xl font-bold text-blue-400 mt-1.5 font-mono" id="metric-runs">-</div>
+          <div class="text-[11px] text-slate-400 mt-2" id="metric-passrate">Real-time execution metrics</div>
         </div>
-        <div class="bg-slate-900 border border-slate-800 rounded-xl p-4 shadow-sm">
-          <div class="text-xs font-medium text-slate-400 uppercase tracking-wider">Telemetry Latency</div>
-          <div class="text-2xl font-bold text-purple-400 mt-1">&lt; 50 ms</div>
-          <div class="text-xs text-emerald-400 mt-2 font-mono">In-Spec (NFR-1 &lt; 500ms)</div>
+
+        <div class="glass-panel rounded-xl p-4.5 shadow-sm">
+          <div class="flex items-center justify-between">
+            <span class="text-[11px] font-semibold text-slate-400 uppercase tracking-wider">Telemetry Latency</span>
+            <svg class="w-4 h-4 text-purple-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"></path></svg>
+          </div>
+          <div class="text-2xl font-bold text-purple-400 mt-1.5 font-mono">&lt; 40 ms</div>
+          <div class="text-[11px] text-emerald-400 mt-2 font-mono flex items-center space-x-1">
+            <span class="h-1.5 w-1.5 rounded-full bg-emerald-400"></span>
+            <span>Sub-500ms SLA Enforced</span>
+          </div>
         </div>
       </div>
 
-      <!-- Recent Executions Summary -->
-      <div class="bg-slate-900 border border-slate-800 rounded-xl overflow-hidden shadow-sm">
-        <div class="px-5 py-4 border-b border-slate-800 flex items-center justify-between">
-          <h2 class="text-sm font-semibold text-white">Recent Execution Runs</h2>
-          <button onclick="refreshData()" class="text-xs text-blue-400 hover:text-blue-300">↻ Refresh</button>
+      <!-- Recent Executions Summary Table -->
+      <div class="glass-panel rounded-xl overflow-hidden shadow-sm">
+        <div class="px-5 py-3.5 border-b border-surface-border flex items-center justify-between bg-surface-card/60">
+          <div class="flex items-center space-x-2">
+            <h2 class="text-xs font-semibold text-white uppercase tracking-wider">Recent Executions</h2>
+            <span class="px-2 py-0.5 rounded text-[10px] font-mono bg-slate-800 text-slate-400 border border-slate-700/60" id="overview-badge">Live</span>
+          </div>
+          <button onclick="refreshData()" class="text-xs text-indigo-400 hover:text-indigo-300 font-medium flex items-center space-x-1">
+            <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"></path></svg>
+            <span>Refresh</span>
+          </button>
         </div>
         <div class="overflow-x-auto">
           <table class="w-full text-left text-xs text-slate-300">
-            <thead class="bg-slate-950/80 text-slate-400 uppercase text-[10px] tracking-wider border-b border-slate-800">
+            <thead class="bg-surface-base text-slate-400 uppercase text-[10px] tracking-wider border-b border-surface-border font-medium">
               <tr>
-                <th class="px-5 py-3">Run ID</th>
-                <th class="px-5 py-3">Project</th>
-                <th class="px-5 py-3">Status</th>
-                <th class="px-5 py-3">Environment</th>
-                <th class="px-5 py-3">Worker Agent</th>
-                <th class="px-5 py-3">Duration</th>
-                <th class="px-5 py-3 text-right">Actions</th>
+                <th class="px-5 py-3 font-semibold">Run ID</th>
+                <th class="px-5 py-3 font-semibold">Project</th>
+                <th class="px-5 py-3 font-semibold">Status</th>
+                <th class="px-5 py-3 font-semibold">Environment</th>
+                <th class="px-5 py-3 font-semibold">Agent Node</th>
+                <th class="px-5 py-3 font-semibold">Duration</th>
+                <th class="px-5 py-3 font-semibold text-right">Actions</th>
               </tr>
             </thead>
-            <tbody id="overview-jobs-tbody" class="divide-y divide-slate-800/60 font-mono">
+            <tbody id="overview-jobs-tbody" class="divide-y divide-surface-border font-mono text-[11px]">
               <tr><td colspan="7" class="px-5 py-8 text-center text-slate-500">Loading recent runs...</td></tr>
             </tbody>
           </table>
@@ -127,26 +179,27 @@
     <section id="view-projects" class="hidden space-y-4">
       <div class="flex items-center justify-between">
         <div>
-          <h2 class="text-base font-semibold text-white">Project Workspaces</h2>
-          <p class="text-xs text-slate-400">Playwright repositories ingested from Git or uploaded Zip archives</p>
+          <h2 class="text-sm font-semibold text-white tracking-tight">Project Workspaces</h2>
+          <p class="text-xs text-slate-400">Playwright suites ingested from Git repositories or uploaded Zip bundles</p>
         </div>
-        <button onclick="openCreateProjectModal()" class="px-3 py-1.5 bg-blue-600 hover:bg-blue-500 text-white rounded-lg text-xs font-semibold shadow transition">
-          + Ingest New Project
+        <button onclick="openCreateProjectModal()" class="flex items-center space-x-1.5 px-3 py-1.5 bg-indigo-600 hover:bg-indigo-500 text-white rounded-lg text-xs font-semibold shadow transition">
+          <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"></path></svg>
+          <span>Ingest New Project</span>
         </button>
       </div>
 
-      <div class="bg-slate-900 border border-slate-800 rounded-xl overflow-hidden">
+      <div class="glass-panel rounded-xl overflow-hidden shadow-sm">
         <table class="w-full text-left text-xs text-slate-300">
-          <thead class="bg-slate-950 text-slate-400 uppercase text-[10px] tracking-wider border-b border-slate-800">
+          <thead class="bg-surface-base text-slate-400 uppercase text-[10px] tracking-wider border-b border-surface-border font-medium">
             <tr>
-              <th class="px-5 py-3">Project Name</th>
-              <th class="px-5 py-3">Ingestion Method</th>
-              <th class="px-5 py-3">Git Repo / Branch</th>
-              <th class="px-5 py-3">Created</th>
-              <th class="px-5 py-3 text-right">Actions</th>
+              <th class="px-5 py-3 font-semibold">Project Name</th>
+              <th class="px-5 py-3 font-semibold">Ingestion Mode</th>
+              <th class="px-5 py-3 font-semibold">Target Repo / Branch</th>
+              <th class="px-5 py-3 font-semibold">Registered</th>
+              <th class="px-5 py-3 font-semibold text-right">Actions</th>
             </tr>
           </thead>
-          <tbody id="projects-tbody" class="divide-y divide-slate-800 font-mono">
+          <tbody id="projects-tbody" class="divide-y divide-surface-border font-mono text-[11px]">
             <tr><td colspan="5" class="px-5 py-8 text-center text-slate-500">Loading projects...</td></tr>
           </tbody>
         </table>
@@ -157,10 +210,13 @@
     <section id="view-agents" class="hidden space-y-4">
       <div class="flex items-center justify-between">
         <div>
-          <h2 class="text-base font-semibold text-white">Worker VM Fleet (Execution Plane)</h2>
-          <p class="text-xs text-slate-400">Registered agent daemons running on remote Windows/Linux test machines</p>
+          <h2 class="text-sm font-semibold text-white tracking-tight">Worker Fleet (Execution Plane)</h2>
+          <p class="text-xs text-slate-400">Active agent daemons connected across Windows, macOS, and Linux VM nodes</p>
         </div>
-        <button onclick="refreshData()" class="text-xs text-slate-400 hover:text-slate-200">↻ Refresh Fleet</button>
+        <button onclick="refreshData()" class="text-xs text-indigo-400 hover:text-indigo-300 flex items-center space-x-1">
+          <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"></path></svg>
+          <span>Refresh Fleet</span>
+        </button>
       </div>
 
       <div class="grid grid-cols-1 md:grid-cols-3 gap-4" id="agents-grid">
@@ -172,42 +228,45 @@
     <section id="view-jobs" class="hidden space-y-6">
       <div class="grid grid-cols-1 lg:grid-cols-12 gap-6">
         <!-- Runs List Column (4 cols) -->
-        <div class="lg:col-span-4 bg-slate-900 border border-slate-800 rounded-xl flex flex-col h-[700px]">
-          <div class="px-4 py-3 border-b border-slate-800 flex items-center justify-between">
-            <h3 class="text-xs font-bold text-white uppercase tracking-wider">Select Run</h3>
-            <span class="text-[10px] text-slate-400" id="jobs-count-badge">0 runs</span>
+        <div class="lg:col-span-4 glass-panel rounded-xl flex flex-col h-[720px] overflow-hidden shadow-sm">
+          <div class="px-4 py-3 border-b border-surface-border flex items-center justify-between bg-surface-card/60">
+            <h3 class="text-xs font-semibold text-white uppercase tracking-wider">Execution Queue</h3>
+            <span class="text-[10px] font-mono text-slate-400" id="jobs-count-badge">0 runs</span>
           </div>
-          <div class="flex-1 overflow-y-auto divide-y divide-slate-800/80" id="jobs-list-container">
+          <div class="flex-1 overflow-y-auto divide-y divide-surface-border custom-scrollbar" id="jobs-list-container">
             <div class="p-4 text-center text-xs text-slate-500">Loading execution runs...</div>
           </div>
         </div>
 
         <!-- Live Terminal Column (8 cols) -->
-        <div class="lg:col-span-8 bg-slate-900 border border-slate-800 rounded-xl flex flex-col h-[700px]">
+        <div class="lg:col-span-8 glass-panel rounded-xl flex flex-col h-[720px] overflow-hidden shadow-sm">
           <!-- Terminal Header Bar -->
-          <div class="px-4 py-2.5 bg-slate-950 border-b border-slate-800 flex items-center justify-between">
+          <div class="px-4 py-2.5 bg-surface-base border-b border-surface-border flex items-center justify-between">
             <div class="flex items-center space-x-2">
-              <span class="h-2.5 w-2.5 rounded-full bg-red-500 inline-block"></span>
-              <span class="h-2.5 w-2.5 rounded-full bg-amber-500 inline-block"></span>
-              <span class="h-2.5 w-2.5 rounded-full bg-emerald-500 inline-block"></span>
-              <span class="text-xs font-mono text-slate-300 ml-2" id="terminal-job-title">No run selected</span>
+              <span class="h-2.5 w-2.5 rounded-full bg-slate-700 inline-block border border-slate-600"></span>
+              <span class="h-2.5 w-2.5 rounded-full bg-slate-700 inline-block border border-slate-600"></span>
+              <span class="h-2.5 w-2.5 rounded-full bg-slate-700 inline-block border border-slate-600"></span>
+              <span class="text-xs font-mono text-slate-300 ml-2" id="terminal-job-title">Select a run to view live output</span>
             </div>
             <div class="flex items-center space-x-2 text-xs">
-              <button onclick="clearTerminal()" class="px-2.5 py-1 bg-slate-800 hover:bg-slate-700 text-slate-300 rounded text-[11px]">Clear</button>
-              <button onclick="downloadActiveLogs()" class="px-2.5 py-1 bg-slate-800 hover:bg-slate-700 text-slate-300 rounded text-[11px]">Download Log</button>
+              <button onclick="clearTerminal()" class="px-2.5 py-1 bg-surface-card hover:bg-surface-hover text-slate-300 rounded border border-surface-border text-[11px] transition">Clear</button>
+              <button onclick="downloadActiveLogs()" class="px-2.5 py-1 bg-surface-card hover:bg-surface-hover text-slate-300 rounded border border-surface-border text-[11px] transition">Download Log</button>
             </div>
           </div>
 
           <!-- Xterm Container -->
-          <div class="flex-1 bg-slate-950 p-2 overflow-hidden" id="terminal-container"></div>
+          <div class="flex-1 bg-surface-base p-2 overflow-hidden" id="terminal-container"></div>
 
-          <!-- Test Cases Breakdown & Failure Inspector (FR-4) -->
-          <div id="job-results-panel" class="hidden px-4 py-3 bg-slate-900/95 border-t border-slate-800 space-y-2">
+          <!-- Test Cases Breakdown & Failure Inspector -->
+          <div id="job-results-panel" class="hidden px-4 py-3 bg-surface-card/95 border-t border-surface-border space-y-2.5">
             <div class="flex items-center justify-between text-xs">
-              <div class="font-bold text-white flex items-center space-x-3" id="job-metrics-summary"></div>
-              <button onclick="toggleTestCasesList()" class="text-blue-400 hover:text-blue-300 text-[11px] font-semibold">Test Details & Screenshots ▼</button>
+              <div class="font-bold text-white flex items-center space-x-2" id="job-metrics-summary"></div>
+              <button onclick="toggleTestCasesList()" class="text-indigo-400 hover:text-indigo-300 text-[11px] font-semibold flex items-center space-x-1">
+                <span>Test Details & Artifacts</span>
+                <span id="test-list-arrow">▼</span>
+              </button>
             </div>
-            <div id="job-test-cases-list" class="space-y-1.5 max-h-48 overflow-y-auto pt-2 hidden border-t border-slate-800/80"></div>
+            <div id="job-test-cases-list" class="space-y-2 max-h-56 overflow-y-auto pt-2 hidden border-t border-surface-border custom-scrollbar"></div>
           </div>
         </div>
       </div>
@@ -216,85 +275,85 @@
   </main>
 
   <!-- MODAL: SCREENSHOT VIEWER -->
-  <div id="modal-screenshot" class="fixed inset-0 bg-black/80 backdrop-blur-sm hidden z-50 flex items-center justify-center p-4" onclick="closeScreenshotModal()">
-    <div class="bg-slate-900 border border-slate-800 rounded-2xl max-w-4xl w-full p-4 space-y-3 shadow-2xl" onclick="event.stopPropagation()">
-      <div class="flex items-center justify-between border-b border-slate-800 pb-2">
-        <h3 class="text-xs font-bold text-white" id="screenshot-modal-title">Failure Screenshot</h3>
-        <button onclick="closeScreenshotModal()" class="text-slate-400 hover:text-white">&times;</button>
+  <div id="modal-screenshot" class="fixed inset-0 bg-black/80 backdrop-blur-md hidden z-50 flex items-center justify-center p-4" onclick="closeScreenshotModal()">
+    <div class="glass-panel rounded-2xl max-w-4xl w-full p-4 space-y-3 shadow-2xl" onclick="event.stopPropagation()">
+      <div class="flex items-center justify-between border-b border-surface-border pb-2.5">
+        <h3 class="text-xs font-semibold text-white tracking-tight" id="screenshot-modal-title">Artifact Screenshot</h3>
+        <button onclick="closeScreenshotModal()" class="text-slate-400 hover:text-white text-base">&times;</button>
       </div>
-      <div class="flex justify-center bg-black/50 p-2 rounded-xl overflow-auto max-h-[70vh]">
-        <img id="screenshot-modal-img" src="" alt="Artifact Screenshot" class="max-w-full h-auto rounded border border-slate-800 shadow-lg" />
+      <div class="flex justify-center bg-black/60 p-2 rounded-xl overflow-auto max-h-[70vh] border border-surface-border">
+        <img id="screenshot-modal-img" src="" alt="Artifact Screenshot" class="max-w-full h-auto rounded shadow-lg object-contain" />
       </div>
     </div>
   </div>
 
   <!-- MODAL: TRIGGER TEST RUN -->
-  <div id="modal-trigger" class="fixed inset-0 bg-black/70 backdrop-blur-sm hidden z-50 flex items-center justify-center p-4">
-    <div class="bg-slate-900 border border-slate-800 rounded-2xl max-w-md w-full p-6 space-y-4 shadow-2xl">
-      <div class="flex items-center justify-between border-b border-slate-800 pb-3">
-        <h3 class="text-sm font-bold text-white">Trigger Test Run</h3>
-        <button onclick="closeTriggerModal()" class="text-slate-400 hover:text-white">&times;</button>
+  <div id="modal-trigger" class="fixed inset-0 bg-black/75 backdrop-blur-md hidden z-50 flex items-center justify-center p-4">
+    <div class="glass-panel rounded-2xl max-w-md w-full p-6 space-y-4 shadow-2xl">
+      <div class="flex items-center justify-between border-b border-surface-border pb-3">
+        <h3 class="text-sm font-semibold text-white tracking-tight">Dispatch Test Execution</h3>
+        <button onclick="closeTriggerModal()" class="text-slate-400 hover:text-white text-base">&times;</button>
       </div>
 
       <div class="space-y-3 text-xs">
         <div>
-          <label class="block text-slate-400 mb-1">Target Project</label>
-          <select id="trigger-project-select" class="w-full bg-slate-950 border border-slate-800 rounded-lg px-3 py-2 text-slate-200 focus:outline-none focus:border-blue-500"></select>
+          <label class="block text-slate-400 mb-1 font-medium">Target Project</label>
+          <select id="trigger-project-select" class="w-full bg-surface-base border border-surface-border rounded-lg px-3 py-2 text-slate-200 focus:outline-none focus:border-indigo-500"></select>
         </div>
 
         <div>
-          <label class="block text-slate-400 mb-1">Execution Environment</label>
-          <input type="text" id="trigger-env" value="staging" class="w-full bg-slate-950 border border-slate-800 rounded-lg px-3 py-2 text-slate-200 focus:outline-none focus:border-blue-500" />
+          <label class="block text-slate-400 mb-1 font-medium">Execution Environment</label>
+          <input type="text" id="trigger-env" value="staging" class="w-full bg-surface-base border border-surface-border rounded-lg px-3 py-2 text-slate-200 focus:outline-none focus:border-indigo-500" />
         </div>
 
         <div>
-          <label class="block text-slate-400 mb-1">Grep / Test Filter Tag (optional)</label>
-          <input type="text" id="trigger-tags" placeholder="@smoke, @checkout" class="w-full bg-slate-950 border border-slate-800 rounded-lg px-3 py-2 text-slate-200 focus:outline-none focus:border-blue-500" />
+          <label class="block text-slate-400 mb-1 font-medium">Grep / Test Filter Tag (optional)</label>
+          <input type="text" id="trigger-tags" placeholder="@smoke, @checkout" class="w-full bg-surface-base border border-surface-border rounded-lg px-3 py-2 text-slate-200 focus:outline-none focus:border-indigo-500" />
         </div>
 
         <div>
-          <label class="block text-slate-400 mb-1">CLI Arguments (optional)</label>
-          <input type="text" id="trigger-cli" placeholder="--workers=2" class="w-full bg-slate-950 border border-slate-800 rounded-lg px-3 py-2 text-slate-200 focus:outline-none focus:border-blue-500" />
+          <label class="block text-slate-400 mb-1 font-medium">CLI Arguments (optional)</label>
+          <input type="text" id="trigger-cli" placeholder="--headed, --workers=2" class="w-full bg-surface-base border border-surface-border rounded-lg px-3 py-2 text-slate-200 focus:outline-none focus:border-indigo-500" />
         </div>
       </div>
 
-      <div class="flex justify-end space-x-2 pt-2 border-t border-slate-800">
-        <button onclick="closeTriggerModal()" class="px-4 py-2 text-slate-400 hover:text-white text-xs">Cancel</button>
-        <button onclick="executeTriggerRun()" class="px-4 py-2 bg-orange-600 hover:bg-orange-500 text-white rounded-lg text-xs font-semibold shadow">Dispatch Run</button>
+      <div class="flex justify-end space-x-2 pt-3 border-t border-surface-border">
+        <button onclick="closeTriggerModal()" class="px-4 py-2 text-slate-400 hover:text-white text-xs font-medium">Cancel</button>
+        <button onclick="executeTriggerRun()" class="px-4 py-2 bg-indigo-600 hover:bg-indigo-500 text-white rounded-lg text-xs font-semibold shadow transition">Dispatch Job</button>
       </div>
     </div>
   </div>
 
   <!-- MODAL: CREATE PROJECT -->
-  <div id="modal-project" class="fixed inset-0 bg-black/70 backdrop-blur-sm hidden z-50 flex items-center justify-center p-4">
-    <div class="bg-slate-900 border border-slate-800 rounded-2xl max-w-md w-full p-6 space-y-4 shadow-2xl">
-      <div class="flex items-center justify-between border-b border-slate-800 pb-3">
-        <h3 class="text-sm font-bold text-white">Ingest New Project</h3>
-        <button onclick="closeCreateProjectModal()" class="text-slate-400 hover:text-white">&times;</button>
+  <div id="modal-project" class="fixed inset-0 bg-black/75 backdrop-blur-md hidden z-50 flex items-center justify-center p-4">
+    <div class="glass-panel rounded-2xl max-w-md w-full p-6 space-y-4 shadow-2xl">
+      <div class="flex items-center justify-between border-b border-surface-border pb-3">
+        <h3 class="text-sm font-semibold text-white tracking-tight">Ingest Playwright Repository</h3>
+        <button onclick="closeCreateProjectModal()" class="text-slate-400 hover:text-white text-base">&times;</button>
       </div>
 
       <div class="space-y-3 text-xs">
         <div>
-          <label class="block text-slate-400 mb-1">Project Name</label>
-          <input type="text" id="new-proj-name" placeholder="e-commerce-e2e" class="w-full bg-slate-950 border border-slate-800 rounded-lg px-3 py-2 text-slate-200 focus:outline-none focus:border-blue-500" />
+          <label class="block text-slate-400 mb-1 font-medium">Project Name</label>
+          <input type="text" id="new-proj-name" placeholder="e-commerce-e2e" class="w-full bg-surface-base border border-surface-border rounded-lg px-3 py-2 text-slate-200 focus:outline-none focus:border-indigo-500" />
         </div>
         <div>
-          <label class="block text-slate-400 mb-1">Git Repository URL</label>
-          <input type="text" id="new-proj-git" placeholder="https://github.com/myorg/playwright-tests.git" class="w-full bg-slate-950 border border-slate-800 rounded-lg px-3 py-2 text-slate-200 focus:outline-none focus:border-blue-500" />
+          <label class="block text-slate-400 mb-1 font-medium">Git Repository URL</label>
+          <input type="text" id="new-proj-git" placeholder="https://github.com/myorg/playwright-tests.git" class="w-full bg-surface-base border border-surface-border rounded-lg px-3 py-2 text-slate-200 focus:outline-none focus:border-indigo-500" />
         </div>
         <div>
-          <label class="block text-slate-400 mb-1">Git Branch</label>
-          <input type="text" id="new-proj-branch" value="main" class="w-full bg-slate-950 border border-slate-800 rounded-lg px-3 py-2 text-slate-200 focus:outline-none focus:border-blue-500" />
+          <label class="block text-slate-400 mb-1 font-medium">Git Branch</label>
+          <input type="text" id="new-proj-branch" value="main" class="w-full bg-surface-base border border-surface-border rounded-lg px-3 py-2 text-slate-200 focus:outline-none focus:border-indigo-500" />
         </div>
         <div>
-          <label class="block text-slate-400 mb-1">Personal Access Token (optional)</label>
-          <input type="password" id="new-proj-pat" placeholder="ghp_••••••••••••••••••••••••" class="w-full bg-slate-950 border border-slate-800 rounded-lg px-3 py-2 text-slate-200 focus:outline-none focus:border-blue-500" />
+          <label class="block text-slate-400 mb-1 font-medium">Personal Access Token (optional)</label>
+          <input type="password" id="new-proj-pat" placeholder="ghp_••••••••••••••••••••••••" class="w-full bg-surface-base border border-surface-border rounded-lg px-3 py-2 text-slate-200 focus:outline-none focus:border-indigo-500" />
         </div>
       </div>
 
-      <div class="flex justify-end space-x-2 pt-2 border-t border-slate-800">
-        <button onclick="closeCreateProjectModal()" class="px-4 py-2 text-slate-400 hover:text-white text-xs">Cancel</button>
-        <button onclick="submitNewProject()" class="px-4 py-2 bg-blue-600 hover:bg-blue-500 text-white rounded-lg text-xs font-semibold shadow">Create Project</button>
+      <div class="flex justify-end space-x-2 pt-3 border-t border-surface-border">
+        <button onclick="closeCreateProjectModal()" class="px-4 py-2 text-slate-400 hover:text-white text-xs font-medium">Cancel</button>
+        <button onclick="submitNewProject()" class="px-4 py-2 bg-indigo-600 hover:bg-indigo-500 text-white rounded-lg text-xs font-semibold shadow transition">Create Workspace</button>
       </div>
     </div>
   </div>
@@ -310,20 +369,21 @@
     window.addEventListener('DOMContentLoaded', () => {
       initTerminal();
       refreshData();
-      setInterval(refreshData, 10000);
+      setInterval(refreshData, 8000);
     });
 
     function initTerminal() {
       const container = document.getElementById('terminal-container');
       term = new Terminal({
         theme: {
-          background: '#020617',
+          background: '#080C14',
           foreground: '#f8fafc',
-          cursor: '#38bdf8',
-          selectionBackground: '#1e3a8a',
+          cursor: '#6366f1',
+          selectionBackground: '#312e81',
         },
-        fontFamily: 'Menlo, Monaco, "Courier New", monospace',
+        fontFamily: 'JetBrains Mono, Menlo, Monaco, monospace',
         fontSize: 12,
+        lineHeight: 1.25,
         convertEol: true,
         scrollback: 5000,
       });
@@ -331,17 +391,17 @@
       term.loadAddon(fitAddon);
       term.open(container);
       fitAddon.fit();
-      term.writeln('\x1b[1;30m[Ready] Select an execution run to view real-time streaming telemetry.\x1b[0m');
+      term.writeln('\x1b[1;30m[System] Terminal initialized. Select an execution run to view real-time streaming telemetry.\x1b[0m');
       window.addEventListener('resize', () => fitAddon.fit());
     }
 
     function switchTab(tabId) {
       ['overview', 'projects', 'agents', 'jobs'].forEach(t => {
         document.getElementById(`view-${t}`).classList.add('hidden');
-        document.getElementById(`tab-${t}`).className = 'tab-btn px-4 py-1.5 text-xs font-medium rounded-lg text-slate-400 hover:text-slate-200 transition';
+        document.getElementById(`tab-${t}`).className = 'tab-btn px-4 py-1.5 text-xs font-medium rounded-md text-slate-400 hover:text-slate-200 transition';
       });
       document.getElementById(`view-${tabId}`).classList.remove('hidden');
-      document.getElementById(`tab-${tabId}`).className = 'tab-btn px-4 py-1.5 text-xs font-medium rounded-lg text-white bg-slate-800 transition shadow-sm';
+      document.getElementById(`tab-${tabId}`).className = 'tab-btn px-4 py-1.5 text-xs font-medium rounded-md text-white bg-indigo-600 shadow-sm transition';
       if (tabId === 'jobs' && fitAddon) {
         setTimeout(() => fitAddon.fit(), 100);
       }
@@ -374,24 +434,28 @@
       document.getElementById('metric-agents').innerText = `${onlineAgents} / ${state.agents.length}`;
       document.getElementById('metric-runs').innerText = state.jobs.length;
 
+      const completed = state.jobs.filter(j => j.status === 'COMPLETED').length;
+      const passRate = state.jobs.length > 0 ? Math.round((completed / state.jobs.length) * 100) : 100;
+      document.getElementById('metric-passrate').innerText = `Pass Rate: ${passRate}% (${completed}/${state.jobs.length} runs)`;
+
       const tbody = document.getElementById('overview-jobs-tbody');
       if (state.jobs.length === 0) {
         tbody.innerHTML = '<tr><td colspan="7" class="px-5 py-8 text-center text-slate-500">No test runs executed yet.</td></tr>';
         return;
       }
 
-      tbody.innerHTML = state.jobs.slice(0, 5).map(j => {
+      tbody.innerHTML = state.jobs.slice(0, 6).map(j => {
         const proj = state.projects.find(p => p.id === j.project_id) || { name: 'Unknown' };
         return `
-          <tr class="hover:bg-slate-800/40">
-            <td class="px-5 py-3 text-blue-400 font-semibold">${j.id.slice(0, 8)}...</td>
-            <td class="px-5 py-3 text-white">${proj.name}</td>
+          <tr class="hover:bg-surface-hover/60 transition">
+            <td class="px-5 py-3 text-indigo-400 font-semibold">${j.id.slice(0, 8)}...</td>
+            <td class="px-5 py-3 text-white font-sans font-medium">${proj.name}</td>
             <td class="px-5 py-3">${getStatusBadge(j.status)}</td>
             <td class="px-5 py-3 text-slate-400">${j.environment}</td>
             <td class="px-5 py-3 text-slate-400">${j.agent_id ? j.agent_id.slice(0, 8) : 'Pending'}</td>
             <td class="px-5 py-3 text-slate-400">${j.execution_duration_ms ? (j.execution_duration_ms / 1000).toFixed(1) + 's' : '-'}</td>
             <td class="px-5 py-3 text-right">
-              <button onclick="viewJobTerminal('${j.id}')" class="text-xs text-orange-400 hover:text-orange-300">View Logs ▶</button>
+              <button onclick="viewJobTerminal('${j.id}')" class="text-xs text-indigo-400 hover:text-indigo-300 font-medium">View Logs ▶</button>
             </td>
           </tr>
         `;
@@ -405,13 +469,13 @@
         return;
       }
       tbody.innerHTML = state.projects.map(p => `
-        <tr class="hover:bg-slate-800/40">
-          <td class="px-5 py-3 font-semibold text-white">${p.name}</td>
-          <td class="px-5 py-3"><span class="px-2 py-0.5 rounded text-[10px] bg-slate-800 text-slate-300">${p.ingestion_type}</span></td>
+        <tr class="hover:bg-surface-hover/60 transition">
+          <td class="px-5 py-3 font-semibold text-white font-sans">${p.name}</td>
+          <td class="px-5 py-3"><span class="px-2 py-0.5 rounded text-[10px] bg-slate-800 text-slate-300 border border-slate-700">${p.ingestion_type}</span></td>
           <td class="px-5 py-3 text-slate-400">${p.git_url || '-'} (${p.git_branch || 'main'})</td>
           <td class="px-5 py-3 text-slate-500">${new Date(p.created_at).toLocaleDateString()}</td>
           <td class="px-5 py-3 text-right">
-            <button onclick="openTriggerModal('${p.id}')" class="px-2.5 py-1 bg-orange-600/20 hover:bg-orange-600/40 text-orange-400 rounded text-[11px]">Run Tests ▶</button>
+            <button onclick="openTriggerModal('${p.id}')" class="px-2.5 py-1 bg-indigo-600/20 hover:bg-indigo-600/40 text-indigo-300 border border-indigo-500/30 rounded text-[11px] font-medium transition">Run Tests ▶</button>
           </td>
         </tr>
       `).join('');
@@ -424,17 +488,17 @@
         return;
       }
       grid.innerHTML = state.agents.map(a => `
-        <div class="bg-slate-900 border border-slate-800 rounded-xl p-4 space-y-3">
+        <div class="glass-panel rounded-xl p-4 space-y-3 shadow-sm hover:border-slate-700 transition">
           <div class="flex items-center justify-between">
-            <div class="font-bold text-white text-sm flex items-center space-x-2">
-              <span class="h-2 w-2 rounded-full ${a.is_healthy ? 'bg-emerald-400 animate-pulse' : 'bg-red-500'}"></span>
-              <span>${a.name}</span>
+            <div class="font-bold text-white text-xs flex items-center space-x-2">
+              <span class="h-2 w-2 rounded-full ${a.is_healthy ? 'bg-emerald-400 animate-pulse' : 'bg-rose-500'}"></span>
+              <span class="font-mono">${a.name}</span>
             </div>
             ${getStatusBadge(a.status)}
           </div>
-          <div class="text-xs text-slate-400 space-y-1 font-mono">
+          <div class="text-xs text-slate-400 space-y-1 font-mono text-[11px]">
             <div>Host: <span class="text-slate-200">${a.hostname}</span></div>
-            <div>Platform: <span class="text-slate-200">${a.platform || 'unknown'}</span></div>
+            <div>Platform: <span class="text-slate-200">${a.platform || 'win32'}</span></div>
             <div>Heartbeat: <span class="text-slate-400">${new Date(a.last_heartbeat).toLocaleTimeString()}</span></div>
           </div>
         </div>
@@ -452,12 +516,12 @@
         const proj = state.projects.find(p => p.id === j.project_id) || { name: 'Unknown' };
         const isSelected = j.id === activeJobId;
         return `
-          <div onclick="viewJobTerminal('${j.id}')" class="p-3.5 cursor-pointer transition ${isSelected ? 'bg-slate-800/90 border-l-4 border-orange-500' : 'hover:bg-slate-800/40'}">
+          <div onclick="viewJobTerminal('${j.id}')" class="p-3.5 cursor-pointer transition ${isSelected ? 'bg-surface-hover/90 border-l-2 border-indigo-500' : 'hover:bg-surface-hover/40'}">
             <div class="flex items-center justify-between">
-              <span class="text-xs font-semibold text-white">${proj.name}</span>
+              <span class="text-xs font-semibold text-white font-sans">${proj.name}</span>
               ${getStatusBadge(j.status)}
             </div>
-            <div class="text-[11px] font-mono text-slate-400 mt-1 flex items-center justify-between">
+            <div class="text-[11px] font-mono text-slate-400 mt-1.5 flex items-center justify-between">
               <span>${j.id.slice(0, 8)}...</span>
               <span>${j.environment}</span>
             </div>
@@ -468,13 +532,20 @@
 
     function getStatusBadge(status) {
       switch(status) {
-        case 'COMPLETED': return '<span class="px-2 py-0.5 rounded text-[10px] font-bold bg-emerald-500/10 text-emerald-400 border border-emerald-500/20">PASSED</span>';
-        case 'FAILED': return '<span class="px-2 py-0.5 rounded text-[10px] font-bold bg-rose-500/10 text-rose-400 border border-rose-500/20">FAILED</span>';
-        case 'RUNNING': return '<span class="px-2 py-0.5 rounded text-[10px] font-bold bg-blue-500/10 text-blue-400 border border-blue-500/20 animate-pulse">RUNNING</span>';
-        case 'QUEUED': return '<span class="px-2 py-0.5 rounded text-[10px] font-bold bg-amber-500/10 text-amber-400 border border-amber-500/20">QUEUED</span>';
-        case 'IDLE': return '<span class="px-2 py-0.5 rounded text-[10px] font-bold bg-emerald-500/10 text-emerald-400 border border-emerald-500/20">IDLE</span>';
-        case 'BUSY': return '<span class="px-2 py-0.5 rounded text-[10px] font-bold bg-orange-500/10 text-orange-400 border border-orange-500/20">BUSY</span>';
-        default: return `<span class="px-2 py-0.5 rounded text-[10px] bg-slate-800 text-slate-400">${status}</span>`;
+        case 'COMPLETED':
+          return '<span class="px-2 py-0.5 rounded text-[10px] font-bold bg-emerald-500/10 text-emerald-400 border border-emerald-500/20 inline-flex items-center gap-1"><span class="h-1.5 w-1.5 rounded-full bg-emerald-400"></span>PASSED</span>';
+        case 'FAILED':
+          return '<span class="px-2 py-0.5 rounded text-[10px] font-bold bg-rose-500/10 text-rose-400 border border-rose-500/20 inline-flex items-center gap-1"><span class="h-1.5 w-1.5 rounded-full bg-rose-400"></span>FAILED</span>';
+        case 'RUNNING':
+          return '<span class="px-2 py-0.5 rounded text-[10px] font-bold bg-blue-500/10 text-blue-400 border border-blue-500/20 animate-pulse inline-flex items-center gap-1"><span class="h-1.5 w-1.5 rounded-full bg-blue-400"></span>RUNNING</span>';
+        case 'QUEUED':
+          return '<span class="px-2 py-0.5 rounded text-[10px] font-bold bg-amber-500/10 text-amber-400 border border-amber-500/20 inline-flex items-center gap-1"><span class="h-1.5 w-1.5 rounded-full bg-amber-400"></span>QUEUED</span>';
+        case 'IDLE':
+          return '<span class="px-2 py-0.5 rounded text-[10px] font-bold bg-emerald-500/10 text-emerald-400 border border-emerald-500/20 inline-flex items-center gap-1"><span class="h-1.5 w-1.5 rounded-full bg-emerald-400"></span>IDLE</span>';
+        case 'BUSY':
+          return '<span class="px-2 py-0.5 rounded text-[10px] font-bold bg-indigo-500/10 text-indigo-400 border border-indigo-500/20 inline-flex items-center gap-1"><span class="h-1.5 w-1.5 rounded-full bg-indigo-400"></span>BUSY</span>';
+        default:
+          return `<span class="px-2 py-0.5 rounded text-[10px] bg-slate-800 text-slate-400 border border-slate-700">${status}</span>`;
       }
     }
 
@@ -485,7 +556,7 @@
 
       document.getElementById('terminal-job-title').innerText = `Run: ${jobId.slice(0, 12)}...`;
       term.reset();
-      term.writeln(`\x1b[1;36m[Connecting to live telemetry for job ${jobId}...]\x1b[0m\r\n`);
+      term.writeln(`\x1b[1;36m[Connecting to telemetry stream for run ${jobId}...]\x1b[0m\r\n`);
 
       if (activeLogSocket) {
         activeLogSocket.close();
@@ -511,10 +582,9 @@
       };
 
       activeLogSocket.onerror = () => {
-        term.writeln(`\r\n\x1b[1;31m[WebSocket Error] Disconnected from stream.\x1b[0m\r\n`);
+        term.writeln(`\r\n\x1b[1;31m[WebSocket Disconnected] Stream offline.\x1b[0m\r\n`);
       };
 
-      // Also check if results are already computed
       fetchJobResults(jobId);
     }
 
@@ -533,11 +603,11 @@
 
         document.getElementById('job-results-panel').classList.remove('hidden');
         document.getElementById('job-metrics-summary').innerHTML = `
-          <span>Execution Summary:</span>
-          <span class="px-2 py-0.5 rounded text-[11px] bg-emerald-500/10 text-emerald-400 border border-emerald-500/20">${summary.passed} Passed</span>
-          <span class="px-2 py-0.5 rounded text-[11px] bg-rose-500/10 text-rose-400 border border-rose-500/20">${summary.failed} Failed</span>
-          <span class="px-2 py-0.5 rounded text-[11px] bg-amber-500/10 text-amber-400 border border-amber-500/20">${summary.skipped} Skipped</span>
-          <span class="text-slate-400 font-mono text-[11px]">${(summary.duration_ms / 1000).toFixed(2)}s</span>
+          <span class="text-slate-300 font-semibold text-xs">Test Execution Summary:</span>
+          <span class="px-2 py-0.5 rounded text-[11px] font-semibold bg-emerald-500/10 text-emerald-400 border border-emerald-500/20">${summary.passed} Passed</span>
+          <span class="px-2 py-0.5 rounded text-[11px] font-semibold bg-rose-500/10 text-rose-400 border border-rose-500/20">${summary.failed} Failed</span>
+          <span class="px-2 py-0.5 rounded text-[11px] font-semibold bg-amber-500/10 text-amber-400 border border-amber-500/20">${summary.skipped} Skipped</span>
+          <span class="text-slate-400 font-mono text-[11px] ml-2">${(summary.duration_ms / 1000).toFixed(2)}s</span>
         `;
 
         const listContainer = document.getElementById('job-test-cases-list');
@@ -547,20 +617,21 @@
           const badgeClass = isPass ? 'bg-emerald-500/10 text-emerald-400 border-emerald-500/20' : (isFail ? 'bg-rose-500/10 text-rose-400 border-rose-500/20' : 'bg-slate-800 text-slate-400 border-slate-700');
 
           return `
-            <div class="p-2 rounded bg-slate-950/80 border border-slate-800/80 text-[11px] space-y-1">
+            <div class="p-2.5 rounded-lg bg-surface-base border border-surface-border text-[11px] space-y-1.5">
               <div class="flex items-center justify-between">
                 <span class="font-medium text-slate-200">${tc.title}</span>
-                <span class="px-1.5 py-0.5 rounded text-[10px] border ${badgeClass}">${tc.status} (${(tc.duration_ms / 1000).toFixed(2)}s)</span>
+                <span class="px-1.5 py-0.5 rounded text-[10px] font-semibold border ${badgeClass}">${tc.status} (${(tc.duration_ms / 1000).toFixed(2)}s)</span>
               </div>
-              ${tc.error_message ? `<div class="text-rose-400 font-mono text-[10px] bg-rose-950/20 p-1.5 rounded border border-rose-900/30 overflow-x-auto">${tc.error_message}</div>` : ''}
+              ${tc.error_message ? `<div class="text-rose-400 font-mono text-[10px] bg-rose-950/20 p-2 rounded border border-rose-900/30 overflow-x-auto">${tc.error_message}</div>` : ''}
               ${tc.screenshot_url ? `
-                <div class="pt-2 flex items-center space-x-3">
-                  <img src="${tc.screenshot_url}" class="h-16 w-28 rounded border border-slate-700/80 hover:border-blue-500 cursor-pointer object-cover shadow transition" onclick="openScreenshotModal('${tc.screenshot_url}', '${tc.title.replace(/'/g, "\\'")}')" title="Click to enlarge" />
+                <div class="pt-1.5 flex items-center space-x-3">
+                  <img src="${tc.screenshot_url}" class="h-16 w-28 rounded border border-surface-border hover:border-indigo-500 cursor-pointer object-cover shadow transition" onclick="openScreenshotModal('${tc.screenshot_url}', '${tc.title.replace(/'/g, "\\'")}')" title="Click to enlarge" />
                   <div>
-                    <button onclick="openScreenshotModal('${tc.screenshot_url}', '${tc.title.replace(/'/g, "\\'")}')" class="px-2 py-1 rounded text-[10px] bg-blue-600/20 hover:bg-blue-600/40 text-blue-300 font-semibold border border-blue-500/30 flex items-center gap-1">
-                      📷 ${isPass ? 'View Screenshot' : 'View Failure Screenshot'}
+                    <button onclick="openScreenshotModal('${tc.screenshot_url}', '${tc.title.replace(/'/g, "\\'")}')" class="px-2.5 py-1 rounded text-[10px] bg-indigo-600/20 hover:bg-indigo-600/40 text-indigo-300 font-semibold border border-indigo-500/30 flex items-center gap-1.5 transition">
+                      <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"></path></svg>
+                      <span>${isPass ? 'View Screenshot' : 'View Failure Screenshot'}</span>
                     </button>
-                    <div class="text-[10px] text-slate-400 mt-0.5">Click thumbnail to inspect full viewport</div>
+                    <div class="text-[10px] text-slate-400 mt-0.5">Captured browser viewport</div>
                   </div>
                 </div>
               ` : ''}
@@ -574,7 +645,9 @@
 
     function toggleTestCasesList() {
       const el = document.getElementById('job-test-cases-list');
+      const arrow = document.getElementById('test-list-arrow');
       el.classList.toggle('hidden');
+      if (arrow) arrow.innerText = el.classList.contains('hidden') ? '▼' : '▲';
     }
 
     function openScreenshotModal(url, title) {
