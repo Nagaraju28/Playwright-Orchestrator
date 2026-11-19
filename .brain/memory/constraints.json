@@ -1,0 +1,36 @@
+[
+  {
+    "text": "Uploaded bundle must be a .zip file",
+    "rationale": "",
+    "files": [
+      "server/src/api/projects.py"
+    ],
+    "confidence": 0.85,
+    "source": "code_pattern",
+    "source_file": "server/src/api/projects.py",
+    "_line": 62,
+    "severity": "high",
+    "_quality": 0.6925,
+    "_captured_at": "2026-11-19T06:25:07.581792+00:00",
+    "_captured_by": "Naga",
+    "_kind": "constraint",
+    "id": "1b16e7a76b68"
+  },
+  {
+    "text": "Missing required X-Agent-Token header",
+    "rationale": "",
+    "files": [
+      "server/src/auth.py"
+    ],
+    "confidence": 0.85,
+    "source": "code_pattern",
+    "source_file": "server/src/auth.py",
+    "_line": 17,
+    "severity": "high",
+    "_quality": 0.6925,
+    "_captured_at": "2026-11-19T06:25:07.581792+00:00",
+    "_captured_by": "Naga",
+    "_kind": "constraint",
+    "id": "aaa0e51937d7"
+  }
+]
