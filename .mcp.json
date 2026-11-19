@@ -1,0 +1,14 @@
+{
+  "mcpServers": {
+    "project-brain": {
+      "command": "C:\\Users\\SRS\\.gemini\\antigravity\\scratch\\brain-neural-core\\.venv\\Scripts\\python.exe",
+      "args": [
+        "-m",
+        "project_brain.mcp_server"
+      ],
+      "env": {
+        "BRAIN_REPO_ROOT": "C:\\Users\\SRS\\.gemini\\antigravity\\scratch\\Playwright-Orchestrator"
+      }
+    }
+  }
+}

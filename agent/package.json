@@ -1,0 +1,22 @@
+{
+  "name": "playwright-orchestrator-agent",
+  "version": "1.0.0",
+  "description": "Cross-platform Node.js worker daemon for Playwright Test Suite Orchestration",
+  "main": "src/index.js",
+  "scripts": {
+    "start": "node src/index.js",
+    "test": "node --test"
+  },
+  "dependencies": {
+    "ws": "^8.16.0",
+    "dotenv": "^16.4.5"
+  },
+  "keywords": [
+    "playwright",
+    "orchestrator",
+    "agent-daemon",
+    "test-runner"
+  ],
+  "author": "Naga",
+  "license": "Apache-2.0"
+}

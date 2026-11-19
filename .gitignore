@@ -1,0 +1,37 @@
+# Project Brain - .brain/ tracking policy (default-deny allowlist)
+# Ignore everything under .brain/, then re-include ONLY the shared set, so a
+# new or per-developer file is ignored by default. The shared brain travels
+# with `git clone`; secrets + per-developer state never do.
+.brain/*
+!.brain/memory/
+.brain/memory/brain.db
+.brain/memory/embeddings/
+!.brain/manual/
+!.brain/metrics/
+!.brain/specs/
+!.brain/config.json
+!.brain/report.json
+!.brain/.brain-config
+
+# Python & Node ignores
+__pycache__/
+*.py[cod]
+*$py.class
+.pytest_cache/
+.venv/
+node_modules/
+npm-debug.log*
+
+# Database & Storage
+*.db
+orchestrator.db
+storage/
+
+# Transient / editor caches (repo root) + env
+.brain-context
+.brain-session
+.env
+.cursor/mcp.json
+.claude/mcp.json
+.windsurf/mcp.json
+.cline/mcp_settings.json
