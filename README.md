@@ -50,26 +50,33 @@ A distributed test orchestration platform for enterprise Playwright automation s
 
 ## Quickstart Guide
 
+> [!TIP]
+> For a complete step-by-step installation guide on new systems or remote execution VMs, see 📖 **[SETUP_GUIDE.md](SETUP_GUIDE.md)**.
+
 ### 1. Start the Control Plane Server (FastAPI)
 ```bash
-cd server
-pip install -r requirements.txt
+python -m venv .venv
+# Windows: .venv\Scripts\Activate.ps1 | Linux/macOS: source .venv/bin/activate
+pip install -r server/requirements.txt
 python -m uvicorn server.src.main:app --host 0.0.0.0 --port 8000 --reload
 ```
 * **Interactive Web Dashboard**: Open [http://localhost:8000/](http://localhost:8000/) in your browser.
 * **OpenAPI / Swagger Docs**: Available at [http://localhost:8000/docs](http://localhost:8000/docs).
 
 ### 2. Launch the Execution Agent Daemon (Node.js)
-On each target test execution machine (VM):
+In a second terminal window on the target test execution machine:
 ```bash
 cd agent
 npm install
+npx playwright install chromium
 npm start
 ```
 The agent daemon will automatically register itself with the Control Plane, initiate live heartbeat telemetry, and wait for dispatched test suites.
 
 ### 3. Run Automated Tests
 ```bash
+# Windows PowerShell
+$env:PYTHONPATH = "."
 pytest server/tests/ -v
 ```
 

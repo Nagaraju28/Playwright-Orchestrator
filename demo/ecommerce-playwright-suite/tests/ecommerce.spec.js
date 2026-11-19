@@ -17,6 +17,9 @@ test.describe('E-Commerce QA Automation Regression Suite (SauceDemo)', () => {
     const inventoryItems = page.locator('.inventory_item');
     await expect(inventoryItems).toHaveCount(6);
 
+    // Pause briefly so the user sees the inventory on their screen
+    await page.waitForTimeout(1500);
+
     // 4. Capture milestone screenshot
     await page.screenshot({ path: 'test-results/tc101_catalog.png' });
   });
@@ -80,17 +83,22 @@ test.describe('E-Commerce QA Automation Regression Suite (SauceDemo)', () => {
     await expect(completeHeader).toHaveText('Thank you for your order!');
   });
 
-  test('TC-104: [Deliberate Edge Case] Locked-Out User Security Boundary', async ({ page }) => {
-    // Deliberate test failure scenario to demonstrate failure screenshots and traces in the Orchestrator
+  test('TC-104: Locked-Out User Security Boundary', async ({ page }) => {
     await page.goto('/');
     await page.locator('[data-test="username"]').fill('locked_out_user');
     await page.locator('[data-test="password"]').fill('secret_sauce');
     await page.locator('[data-test="login-button"]').click();
 
-    // We deliberately assert that inventory opened, but it will fail with:
-    // "Epic sadface: Sorry, this user has been locked out."
-    // This triggers Playwright's automatic screenshot and trace recording!
-    await expect(page).toHaveURL(/.*inventory.html/, { timeout: 3000 });
+    // Verify error banner is visible and has correct message
+    const errorMsg = page.locator('[data-test="error"]');
+    await expect(errorMsg).toBeVisible();
+    await expect(errorMsg).toContainText('Sorry, this user has been locked out.');
+    
+    // Pause briefly so user can see error banner on UI
+    await page.waitForTimeout(1500);
+
+    // Capture screenshot of locked-out banner
+    await page.screenshot({ path: 'test-results/tc104_locked_out.png' });
   });
 
   test.skip('TC-105: International Duty & Customs Currency Conversion', async () => {

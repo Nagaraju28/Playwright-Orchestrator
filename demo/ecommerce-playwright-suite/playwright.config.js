@@ -20,7 +20,10 @@ module.exports = defineConfig({
     trace: 'on',
     screenshot: 'on',
     video: 'on',
-    headless: true,
+    headless: false,
+    launchOptions: {
+      slowMo: 600,
+    },
     viewport: { width: 1280, height: 720 },
     ignoreHTTPSErrors: true,
   },
